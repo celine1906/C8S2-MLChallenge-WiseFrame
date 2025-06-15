@@ -7,6 +7,8 @@ import UIKit
 // MARK: - Main App View
 struct ContentView: View {
     var body: some View {
-        CameraView()
+        NavigationStack {
+            CameraView()
+        }
     }
 }

@@ -11,6 +11,15 @@ import Vision
 import CoreML
 import UIKit
 
+struct ResultData: Hashable {
+    let faceImage: UIImage?
+//    let brightness: Float
+//    let isTooYellow: Bool
+    let result3Labels: String?
+    let result4Labels: String?
+}
+
+
 // MARK: - Main App View
 struct CameraView: View {
     @StateObject private var cameraManager = CameraManager()
@@ -21,6 +30,9 @@ struct CameraView: View {
     @State private var pictureCount = 0
     @State private var showResults = false
     @State private var finalResults: [(String, Double, Int)] = []
+    @StateObject private var mlModel = SkinToneClassification()
+    @State private var resultData: ResultData?
+    @State private var isShowingResult = false
     
     private let totalPictures = 6
     
@@ -62,58 +74,10 @@ struct CameraView: View {
                 
                 // Instructions or Results
                 VStack(spacing: 15) {
-                    if showResults {
-                        // Final Results Display
-                        VStack(spacing: 10) {
-                            Text("Your Face Shape Results")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(.bottom, 5)
-                            
-                            ForEach(Array(finalResults.enumerated()), id: \.offset) { index, result in
-                                HStack {
-                                    Text("\(index + 1).")
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                    
-                                    Text(result.0.capitalized)
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    VStack(alignment: .trailing) {
-                                        Text("\(Int(result.1))%")
-                                            .font(.subheadline)
-                                            .foregroundColor(.white)
-                                        Text("(\(result.2) votes)")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                    }
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color.black.opacity(0.6))
-                                .cornerRadius(10)
-                            }
-                            
-                            // Reset Button
-                            Button("Take New Photos") {
-                                resetSession()
-                            }
-                            .padding(.horizontal, 30)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(25)
-                            .padding(.top, 10)
-                        }
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(15)
-                    } else {
+//                    if showResults {
+//                        // Final Results Display
+//  
+//                    } else {
                         // Instructions
                         VStack(spacing: 8) {
                             if pictureCount == 0 {
@@ -125,7 +89,7 @@ struct CameraView: View {
                                     .foregroundColor(.gray)
                                     .multilineTextAlignment(.center)
                             } else if pictureCount < totalPictures {
-                                Text("Picture \(pictureCount + 1) of \(totalPictures)")
+                                Text("Picture \(pictureCount) of \(totalPictures)")
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 Text("Try a different angle or expression")
@@ -136,7 +100,7 @@ struct CameraView: View {
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .cornerRadius(15)
-                    }
+//                    }
                     
                     // Capture Button (only show if not showing results)
                     if !showResults {
@@ -169,6 +133,21 @@ struct CameraView: View {
         .onAppear {
             cameraManager.requestPermission()
         }
+        .navigationDestination(isPresented: $isShowingResult) {
+            if let result = resultData {
+                RecommendationView(
+                    image: result.faceImage,
+//                    brightness: result.brightness,
+//                    isTooYellow: result.isTooYellow,
+                    result: result.result3Labels,
+                    result2: result.result4Labels,
+                    finalResults: finalResults
+                )
+            } else {
+                EmptyView()
+            }
+
+        }
         .alert("Error", isPresented: $showAlert) {
             Button("OK") { }
         } message: {
@@ -176,13 +155,42 @@ struct CameraView: View {
         }
     }
     
-    private func capturePhoto() {
-        if pictureCount >= totalPictures {
-            // Calculate final results
-            calculateFinalResults()
-            return
-        }
+    private func cropImage(_ image: UIImage) -> UIImage? {
+        guard let cgImage = image.cgImage else { return nil }
         
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        let request = VNDetectFaceRectanglesRequest()
+        
+        do {
+            try handler.perform([request])
+            guard let results = request.results, let face = results.first else {
+                return nil
+            }
+            
+            let boundingBox = face.boundingBox
+            let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+            let rect = CGRect(
+                x: boundingBox.origin.x * imageSize.width,
+                y: (1 - boundingBox.origin.y - boundingBox.size.height) * imageSize.height,
+                width: boundingBox.size.width * imageSize.width,
+                height: boundingBox.size.height * imageSize.height
+            )
+            
+            if let croppedCGImage = cgImage.cropping(to: rect) {
+                return UIImage(cgImage: croppedCGImage, scale: image.scale, orientation: image.imageOrientation).normalizedImage()
+            } else {
+                return nil
+            }
+        } catch {
+            print("Face detection failed: \(error)")
+            return nil
+        }
+    }
+
+    
+    private func capturePhoto() {
+        guard pictureCount < totalPictures else { return }
+
         isProcessing = true
         cameraManager.capturePhoto { image in
             guard let image = image else {
@@ -194,7 +202,17 @@ struct CameraView: View {
                 return
             }
             
-            // Process the captured image
+            if pictureCount == 0 {
+                guard let croppedImage = self.cropImage(image) else { return }
+                guard let prediction = mlModel.classifySkinTone(image: croppedImage) else { return }
+                guard let prediction2 = mlModel.classifySkinTone2(image: croppedImage) else { return }
+                self.resultData = ResultData(
+                    faceImage: croppedImage,
+                    result3Labels: prediction,
+                    result4Labels: prediction2
+                )
+            }
+            
             FaceShapePredictor.shared.predictFaceShape(from: image) { result in
                 DispatchQueue.main.async {
                     self.isProcessing = false
@@ -204,9 +222,13 @@ struct CameraView: View {
                         self.predictions.append((predictedShape, confidence))
                         self.pictureCount += 1
                         
-                        // Show results after 6 pictures
                         if self.pictureCount >= self.totalPictures {
-                            self.calculateFinalResults()
+                            Task {
+                                await self.calculateFinalResults()
+                                DispatchQueue.main.async {
+                                    self.isShowingResult = true
+                                }
+                            }
                         }
                         
                     case .failure(let error):
@@ -217,9 +239,9 @@ struct CameraView: View {
             }
         }
     }
+
     
-    private func calculateFinalResults() {
-        // Group predictions by face shape and calculate stats
+    private func calculateFinalResults() async {
         var shapeStats: [String: (totalConfidence: Double, count: Int)] = [:]
         
         for (shape, confidence) in predictions {
@@ -230,26 +252,40 @@ struct CameraView: View {
             }
         }
         
-        // Calculate average confidence and sort by count, then by average confidence
         let sortedResults = shapeStats.map { (shape, stats) in
             let avgConfidence = stats.totalConfidence / Double(stats.count)
             return (shape, avgConfidence, stats.count)
         }.sorted { first, second in
             if first.2 != second.2 {
-                return first.2 > second.2  // Sort by count first
+                return first.2 > second.2
             }
-            return first.1 > second.1  // Then by average confidence
+            return first.1 > second.1
         }
-        
-        // Take top 3 results
+
         finalResults = Array(sortedResults.prefix(3))
         showResults = true
     }
+
     
     private func resetSession() {
         predictions = []
         pictureCount = 0
         showResults = false
         finalResults = []
+    }
+}
+
+extension UIImage {
+    func normalizedImage() -> UIImage {
+        if imageOrientation == .up {
+            return self
+        }
+
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return normalizedImage ?? self
     }
 }
