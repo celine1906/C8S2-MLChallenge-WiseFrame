@@ -17,7 +17,14 @@ struct RecommendationView: View {
     let finalResults: [(String, Double, Int)]
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack {
+            NavigationLink(destination: GlassesARContainerView()) {
+                                Text("Mulai AR Kacamata")
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .background(Color.blue)
+                                    .cornerRadius(10)
+                            }
             if let image = image {
                 Image(uiImage: image)
                     .resizable()
