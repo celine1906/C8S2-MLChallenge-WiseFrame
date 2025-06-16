@@ -14,7 +14,7 @@ struct GlassesARContainerView: View {
     var body: some View {
         VStack {
             if viewModel.checkFaceTrackingAvailability() {
-                ARViewContainer()
+                GlassesARViewRepresentable()
                     .edgesIgnoringSafeArea(.all)
             } else {
                 Text("Face tracking tidak didukung di perangkat ini.")
@@ -24,12 +24,3 @@ struct GlassesARContainerView: View {
     }
 }
 
-struct ARViewContainer: UIViewRepresentable {
-    func makeUIView(context: Context) -> ARView {
-        return GlassesARView(frame: .zero)
-    }
-
-    func updateUIView(_ uiView: ARView, context: Context) {
-        // bisa menambahkan logic update nanti jika diperlukan
-    }
-}
