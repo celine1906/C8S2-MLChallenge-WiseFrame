@@ -10,9 +10,22 @@
 		DA03340F2DF95C0F00B1E7FF /* testingvision.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testingvision.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DA0334242DF95F9E00B1E7FF /* Exceptions for "testingvision" folder in "testingvision" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DA03340E2DF95C0F00B1E7FF /* testingvision */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DA0334112DF95C0F00B1E7FF /* testingvision */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DA0334242DF95F9E00B1E7FF /* Exceptions for "testingvision" folder in "testingvision" target */,
+			);
 			path = testingvision;
 			sourceTree = "<group>";
 		};
