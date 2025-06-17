@@ -3,7 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
+<<<<<<< HEAD
 	<string>this app use camera</string>
+=======
+	<string>This app works only with camera </string>
+>>>>>>> 89cbf82 (Add GenderView and Welcome View)
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
