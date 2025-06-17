@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		12D84B7C2DFC1159000C457C /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
-		12D84BCD2DFC2612000C457C /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
+		174E09342E000839009CD575 /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
+		1762D6812E000B5700F394DD /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
+		1795220D2E0009E100DEEE91 /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
 		DA03340F2DF95C0F00B1E7FF /* testingvision.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testingvision.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -44,14 +45,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		12D84B7E2DFC1159000C457C /* Products */ = {
+		174E09362E000839009CD575 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		12D84BCF2DFC2612000C457C /* Products */ = {
+		1762D6832E000B5700F394DD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1795220F2E0009E100DEEE91 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -128,12 +136,16 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 12D84BCF2DFC2612000C457C /* Products */;
-					ProjectRef = 12D84BCD2DFC2612000C457C /* testingvision.xcodeproj */;
+					ProductGroup = 1795220F2E0009E100DEEE91 /* Products */;
+					ProjectRef = 1795220D2E0009E100DEEE91 /* testingvision.xcodeproj */;
 				},
 				{
-					ProductGroup = 12D84B7E2DFC1159000C457C /* Products */;
-					ProjectRef = 12D84B7C2DFC1159000C457C /* testingvision.xcodeproj */;
+					ProductGroup = 1762D6832E000B5700F394DD /* Products */;
+					ProjectRef = 1762D6812E000B5700F394DD /* testingvision.xcodeproj */;
+				},
+				{
+					ProductGroup = 174E09362E000839009CD575 /* Products */;
+					ProjectRef = 174E09342E000839009CD575 /* testingvision.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -292,15 +304,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NX68XL6H25;
+				DEVELOPMENT_TEAM = SUKD57NHUV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = testingvision/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to detect facial landmarks in real-time.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -322,15 +334,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NX68XL6H25;
+				DEVELOPMENT_TEAM = SUKD57NHUV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = testingvision/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to detect facial landmarks in real-time.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
