@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		174E09342E000839009CD575 /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
+		1762D6812E000B5700F394DD /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
+		1795220D2E0009E100DEEE91 /* testingvision.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = testingvision.xcodeproj; sourceTree = "<group>"; };
 		DA03340F2DF95C0F00B1E7FF /* testingvision.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testingvision.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -42,6 +45,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		174E09362E000839009CD575 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1762D6832E000B5700F394DD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1795220F2E0009E100DEEE91 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		DA0334062DF95C0F00B1E7FF = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +134,20 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DA0334102DF95C0F00B1E7FF /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1795220F2E0009E100DEEE91 /* Products */;
+					ProjectRef = 1795220D2E0009E100DEEE91 /* testingvision.xcodeproj */;
+				},
+				{
+					ProductGroup = 1762D6832E000B5700F394DD /* Products */;
+					ProjectRef = 1762D6812E000B5700F394DD /* testingvision.xcodeproj */;
+				},
+				{
+					ProductGroup = 174E09362E000839009CD575 /* Products */;
+					ProjectRef = 174E09342E000839009CD575 /* testingvision.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				DA03340E2DF95C0F00B1E7FF /* testingvision */,
@@ -266,7 +304,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4A9QQ2CVC;
+				DEVELOPMENT_TEAM = SUKD57NHUV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = testingvision/Info.plist;
@@ -275,6 +313,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -295,7 +334,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4A9QQ2CVC;
+				DEVELOPMENT_TEAM = SUKD57NHUV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = testingvision/Info.plist;
@@ -304,6 +343,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
