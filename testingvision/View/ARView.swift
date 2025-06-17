@@ -36,7 +36,7 @@ class GlassesARViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
         
         // Load model kacamata
-        guard let scene = SCNScene(named: "aviators.usdc"),
+        guard let scene = SCNScene(named: "round.usdc"),
               let glasses = scene.rootNode.childNodes.first else {
             print("❌ Gagal load model")
             return
