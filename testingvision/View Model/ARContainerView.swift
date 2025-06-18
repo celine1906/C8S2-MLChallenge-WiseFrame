@@ -5,22 +5,22 @@
 //  Created by Regina Celine Adiwinata on 16/06/25.
 //
 
-import SwiftUI
-import RealityKit
-
-struct GlassesARContainerView: View {
-    @StateObject private var viewModel = ARViewModel()
-
-    var body: some View {
-        VStack {
-            if viewModel.checkFaceTrackingAvailability() {
-                GlassesARViewRepresentable()
-                    .edgesIgnoringSafeArea(.all)
-            } else {
-                Text("Face tracking tidak didukung di perangkat ini.")
-                    .foregroundColor(.red)
-            }
-        }
-    }
-}
+//import SwiftUI
+//import RealityKit
+//
+//struct GlassesARContainerView: View {
+//    @StateObject private var viewModel = ARViewModel()
+//
+//    var body: some View {
+//        VStack {
+//            if viewModel.checkFaceTrackingAvailability() {
+//                GlassesARViewRepresentable()
+//                    .edgesIgnoringSafeArea(.all)
+//            } else {
+//                Text("Face tracking tidak didukung di perangkat ini.")
+//                    .foregroundColor(.red)
+//            }
+//        }
+//    }
+//}
 

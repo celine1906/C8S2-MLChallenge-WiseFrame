@@ -13,83 +13,133 @@ struct RecommendationView: View {
 //    var brightness: Float
 //    var isTooYellow: Bool
     var result: String?
-    var result2 : String?
+    var result2 : [String: Double]?
     let finalResults: [(String, Double, Int)]
 
     var body: some View {
         VStack {
-            NavigationLink(destination: GlassesARContainerView()) {
-                                Text("Mulai AR Kacamata")
-                                    .padding()
-                                    .foregroundColor(.white)
-                                    .background(Color.blue)
-                                    .cornerRadius(10)
-                            }
+            
+            Text("Your Result")
+                .font(.title)
+                .fontWeight(.medium)
+                .padding(.top)
+            
             if let image = image {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
-//                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .scaledToFit()
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .overlay(RoundedRectangle(cornerRadius: 15)
+                        .stroke(Color.red.opacity(0.5), lineWidth: 3))
             }
-            
-            Text("Result from 3 labels model: \(result ?? "Gagal Deteksi")")
+            Text("Based on your pictures")
                 .font(.headline)
-            Text("Result from 4 labels model: \(result2 ?? "Gagal Deteksi")")
-                .font(.headline)
-
-//            Text("Brightness: \(String(format: "%.2f", brightness))")
-//                .font(.headline)
-//
-//            if isTooYellow {
-//                Text("⚠️ Lighting too yellow!")
-//                    .foregroundColor(.yellow)
-//                    .bold()
-//            } else {
-//                Text("✅ Lighting is fine.")
-//                    .foregroundColor(.green)
-//            }
-
-            Spacer()
+                .foregroundColor(.red)
+                .padding(.top, 10)
             
-            VStack(spacing: 10) {
-                Text("Your Face Shape Results")
+            VStack() {
+                Text("Face Shape Results")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                     .padding(.bottom, 5)
                 
                 ForEach(Array(finalResults.enumerated()), id: \.offset) { index, result in
                     HStack {
                         Text("\(index + 1).")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                         
                         Text(result.0.capitalized)
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                         
-                        Spacer()
+                        ProgressView(value: 0.25)
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color.red))
+                            .frame(height: 10)
                         
-                        VStack(alignment: .trailing) {
+//                        VStack(alignment: .trailing) {
                             Text("\(Int(result.1))%")
                                 .font(.subheadline)
-                                .foregroundColor(.white)
-                            Text("(\(result.2) votes)")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
+                                .foregroundColor(.black)
+//                            Text("(\(result.2) votes)")
+//                                .font(.caption)
+//                                .foregroundColor(.gray)
+//                        }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(Color.black.opacity(0.6))
-                    .cornerRadius(10)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+//                    .background(Color.black.opacity(0.6))
+//                    .cornerRadius(10)
                 }
                 
             }
             .padding()
-            .background(Color.black.opacity(0.5))
-            .cornerRadius(15)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.white)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.pinkMain, lineWidth: 5)
+            )
+            
+            VStack() {
+                Text("Skin Tone Results")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.black)
+                    .padding(.bottom, 5)
+                
+                if let skinToneResults = result2 {
+                    let topTwoResults = skinToneResults.sorted(by: { $0.value > $1.value }).prefix(2)
+                    
+                    ForEach(Array(topTwoResults.enumerated()), id: \.offset) { index, result in
+                        HStack {
+                            Text("\(index + 1).")
+                                .font(.headline)
+                                .foregroundColor(.black)
+                            
+                            Text(result.0.capitalized)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                            
+                            ProgressView(value: result.1)
+                                .progressViewStyle(LinearProgressViewStyle(tint: Color.red))
+                                .frame(height: 10)
+                            
+                            Text("\(Int(result.1 * 100))%")
+                                .font(.subheadline)
+                                .foregroundColor(.black)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                    }
+                }
+
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.white)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.pinkMain, lineWidth: 5)
+            )
+            
+
+            
+            NavigationLink(destination: GlassesTryOnView()) {
+                Text("Try-on Glasses")
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.pinkMain)
+                    .cornerRadius(10)
+            }
         }
         .padding()
         .navigationBarHidden(true)

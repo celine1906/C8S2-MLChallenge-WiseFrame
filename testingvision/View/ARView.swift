@@ -5,13 +5,6 @@
 //  Created by Regina Celine Adiwinata on 16/06/25.
 //
 
-//
-//  ARView.swift
-//  testingvision
-//
-//  Created by Regina Celine Adiwinata on 16/06/25.
-//
-
 import UIKit
 import ARKit
 import SceneKit
@@ -21,10 +14,17 @@ class GlassesARViewController: UIViewController, ARSCNViewDelegate {
     
     let sceneView = ARSCNView(frame: .zero)
     var glassesNode: SCNNode?
+    var currentGlassesModel: String = "round.usdc"
+    var faceNode: SCNNode?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupARView()
+        loadGlassesModel(currentGlassesModel)
+    }
+    
+    private func setupARView() {
         view.addSubview(sceneView)
         sceneView.frame = view.bounds
         sceneView.delegate = self
@@ -34,16 +34,44 @@ class GlassesARViewController: UIViewController, ARSCNViewDelegate {
         let configuration = ARFaceTrackingConfiguration()
         configuration.isLightEstimationEnabled = true
         sceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
-        
+    }
+    
+    private func loadGlassesModel(_ modelName: String) {
         // Load model kacamata
-        guard let scene = SCNScene(named: "round.usdc"),
+        guard let scene = SCNScene(named: modelName),
               let glasses = scene.rootNode.childNodes.first else {
-            print("❌ Gagal load model")
+            print("❌ Gagal load model: \(modelName)")
             return
         }
 
         // Simpan glassesNode untuk ditambahkan ke anchor wajah
         self.glassesNode = glasses
+        
+        // Update existing face node if it exists
+        if let existingFaceNode = faceNode {
+            updateGlassesOnFace(existingFaceNode)
+        }
+    }
+    
+    func updateGlassesModel(_ newModel: String) {
+        guard newModel != currentGlassesModel else { return }
+        currentGlassesModel = newModel
+        loadGlassesModel(newModel)
+    }
+    
+    private func updateGlassesOnFace(_ node: SCNNode) {
+        // Remove existing glasses
+        node.childNodes.forEach { child in
+            if child.name == "glasses" {
+                child.removeFromParentNode()
+            }
+        }
+        
+        // Add new glasses
+        if let glasses = glassesNode?.clone() {
+            glasses.name = "glasses"
+            node.addChildNode(glasses)
+        }
     }
 
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
@@ -51,6 +79,7 @@ class GlassesARViewController: UIViewController, ARSCNViewDelegate {
               anchor is ARFaceAnchor else { return nil }
 
         let node = SCNNode()
+        faceNode = node
 
         // Occlusion: Geometri wajah
         let faceGeometry = ARSCNFaceGeometry(device: device)!
@@ -68,6 +97,7 @@ class GlassesARViewController: UIViewController, ARSCNViewDelegate {
 
         // Kacamata
         if let glasses = glassesNode?.clone() {
+            glasses.name = "glasses"
             node.addChildNode(glasses)
         }
 
@@ -103,13 +133,33 @@ class GlassesARViewController: UIViewController, ARSCNViewDelegate {
         eyeNode.name = name
         return eyeNode
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let configuration = ARFaceTrackingConfiguration()
+        configuration.isLightEstimationEnabled = true
+        sceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        sceneView.session.pause()
+    }
 }
 
 // MARK: - SwiftUI Representable
+// Updated AR View Representable to accept model parameter
 struct GlassesARViewRepresentable: UIViewControllerRepresentable {
+    let selectedModel: String
+    
     func makeUIViewController(context: Context) -> GlassesARViewController {
-        return GlassesARViewController()
+        let controller = GlassesARViewController()
+        controller.currentGlassesModel = selectedModel
+        return controller
     }
     
-    func updateUIViewController(_ uiViewController: GlassesARViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: GlassesARViewController, context: Context) {
+        uiViewController.updateGlassesModel(selectedModel)
+    }
 }

@@ -16,7 +16,7 @@ struct ResultData: Hashable {
 //    let brightness: Float
 //    let isTooYellow: Bool
     let result3Labels: String?
-    let result4Labels: String?
+    let result4Labels: [String: Double]?
 }
 
 
@@ -251,7 +251,7 @@ struct CameraView: View {
                 }
                 
                 self.resultData = ResultData(
-                    faceImage: croppedImage,
+                    faceImage: image,
                     result3Labels: prediction,
                     result4Labels: prediction2
                 )
@@ -340,6 +340,8 @@ struct CameraView: View {
             let rank = index == 0 ? "🥇" : (index == 1 ? "🥈" : "🥉")
             print("   \(rank) \(shape): \(String(format: "%.1f", avgConfidence))% avg (appeared \(count) times)")
         }
+        
+        isShowingResult.toggle()
         
         showResults = true
     }
