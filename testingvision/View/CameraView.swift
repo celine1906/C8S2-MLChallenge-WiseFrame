@@ -28,6 +28,7 @@ struct CameraView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var pictureCount = 0
+    @State private var allLandmarks: [[CGPoint]] = []
     @State private var showResults = false
     @State private var finalResults: [(String, Double, Int)] = []
     @StateObject private var mlModel = SkinToneClassification()
@@ -209,8 +210,29 @@ struct CameraView: View {
                     }
                 }
             }
-            .onAppear {
-                cameraManager.requestPermission()
+        }
+        .frame(maxHeight: .infinity, alignment: .center)
+        .padding()
+        .onAppear {
+            cameraManager.requestPermission()
+        }
+//        .navigationTitle("Scan Face")
+        .navigationBarHidden(true)
+        .navigationDestination(isPresented: $isShowingResult) {
+            if let result = resultData {
+                if pictureCount > 0 {
+                    RecommendationView(
+                        image: result.faceImage,
+    //                    brightness: result.brightness,
+    //                    isTooYellow: result.isTooYellow,
+                        result: result.result3Labels,
+                        result2: result.result4Labels,
+                        finalResults: finalResults,
+//                        landmarks: allLandmarks[pictureCount - 1]
+                    )
+                }
+            } else {
+                EmptyView()
             }
             .navigationBarHidden(true)
             .navigationDestination(isPresented: $isShowingResult) {
@@ -282,7 +304,7 @@ struct CameraView: View {
                 return
             }
             
-            // FIXED: Handle skin tone classification for first photo only
+            // Handle skin tone classification for the first photo only
             if pictureCount == 0 {
                 guard let croppedImage = self.cropImage(image) else {
                     DispatchQueue.main.async {
@@ -310,46 +332,62 @@ struct CameraView: View {
                 )
             }
             
-            // FIXED: Properly handle face shape prediction with completion
+            // Start face shape prediction and landmarks extraction
             print("🔄 Starting face shape prediction for photo \(pictureCount + 1)")
             
-            FaceShapePredictor.shared.predictFaceShape(from: image) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let (primaryPrediction, primaryConfidence, top3)):
-                        print("🎯 Photo \(self.pictureCount + 1) - Primary: \(primaryPrediction) (\(String(format: "%.1f", primaryConfidence))%)")
-                        print("🏆 Top 3:")
-                        for (index, (className, confidence)) in top3.enumerated() {
-                            let rank = index == 0 ? "🥇" : (index == 1 ? "🥈" : "🥉")
-                            print("   \(rank) \(className): \(String(format: "%.1f", confidence))%")
-                        }
-                        
-                        // Store this photo's prediction
-                        self.allFaceShapePredictions.append(top3)
-                        
-                        // Update picture count
-                        self.pictureCount += 1
-                        
-                        // If we've captured all photos, calculate final results
-                        if self.pictureCount >= self.totalPictures {
-                            Task {
-                                await self.calculateFinalResults()
+            // Extract face landmarks for this photo
+            FaceShapePredictor.shared.extractLandmarks(from: image) { landmarks in
+                if let landmarks = landmarks {
+                    // Store landmarks for this photo
+                    self.allLandmarks.append(landmarks)
+                    
+                    // Proceed with face shape prediction
+                    FaceShapePredictor.shared.predictFaceShape(from: image) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(let (primaryPrediction, primaryConfidence, top3)):
+                                print("🎯 Photo \(self.pictureCount + 1) - Primary: \(primaryPrediction) (\(String(format: "%.1f", primaryConfidence))%)")
+                                print("🏆 Top 3:")
+                                for (index, (className, confidence)) in top3.enumerated() {
+                                    let rank = index == 0 ? "🥇" : (index == 1 ? "🥈" : "🥉")
+                                    print("   \(rank) \(className): \(String(format: "%.1f", confidence))%")
+                                }
+                                
+                                // Store this photo's face shape predictions
+                                self.allFaceShapePredictions.append(top3)
+                                
+                                // Update picture count
+                                self.pictureCount += 1
+                                
+                                // If all photos have been captured, calculate final results
+                                if self.pictureCount >= self.totalPictures {
+                                    Task {
+                                        await self.calculateFinalResults()
+                                    }
+                                }
+                                
+                                // Reset processing state
+                                self.isProcessing = false
+                                
+                            case .failure(let error):
+                                print("❌ Face shape prediction error: \(error)")
+                                self.alertMessage = "Failed to analyze face shape: \(error.localizedDescription)"
+                                self.showAlert = true
+                                self.isProcessing = false
                             }
                         }
-                        
-                        // Reset processing state
+                    }
+                } else {
+                    DispatchQueue.main.async {
                         self.isProcessing = false
-                        
-                    case .failure(let error):
-                        print("❌ Face shape prediction error: \(error)")
-                        self.alertMessage = "Failed to analyze face shape: \(error.localizedDescription)"
+                        self.alertMessage = "Failed to detect face landmarks"
                         self.showAlert = true
-                        self.isProcessing = false
                     }
                 }
             }
         }
     }
+
 
     
     private func calculateFinalResults() async {
