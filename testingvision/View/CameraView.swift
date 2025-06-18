@@ -156,7 +156,7 @@ struct CameraView: View {
         .onAppear {
             cameraManager.requestPermission()
         }
-//        .navigationTitle("Scan Face")
+//        .navigationTitle("Scan Face")//
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $isShowingResult) {
             if let result = resultData {
@@ -164,7 +164,7 @@ struct CameraView: View {
                     image: result.faceImage,
 //                    brightness: result.brightness,
 //                    isTooYellow: result.isTooYellow,
-                    result: result.result3Labels,
+//                    result: result.result3Labels,
                     result2: result.result4Labels,
                     finalResults: finalResults
                 )

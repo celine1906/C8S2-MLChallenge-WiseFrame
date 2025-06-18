@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GenderView: View {
-    @State private var isShowingResult = false
+    @State private var isShowingResult = false    
     
     var body: some View {
         VStack(alignment: .center, spacing: 180) {

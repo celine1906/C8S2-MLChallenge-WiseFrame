@@ -12,6 +12,7 @@ struct GlassesTryOnView: View {
     @State private var selectedGlassesIndex = 0
     @State private var currentGlassesModel = "round.usdz"
     @State private var showingARView = true
+    @Environment(\.dismiss) private var dismiss
 
     let glassesOptions = [
         GlassesModel(
@@ -27,18 +28,20 @@ struct GlassesTryOnView: View {
             frameColors: [.black, .brown, .clear]
         ),
         GlassesModel(
-            name: "Square",
+            name: "Aviator",
             description: "Bold and structured. Works well with rounder face types.",
-            modelFile: "square.usdz",
+            modelFile: "aviators.usdz",
             frameColors: [.black, .brown, .clear]
         )
-    ]
-
+    ]    
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Button(action: {}) {
+                Button(action: {
+                    dismiss()
+                }) {
                     Image(systemName: "chevron.left")
                         .padding(10)
                         .background(Circle().fill(Color(.systemGray6)))
@@ -52,7 +55,9 @@ struct GlassesTryOnView: View {
 
                 Spacer()
 
-                Button(action: {}) {
+                Button(action: {
+                    
+                }) {
                     Image(systemName: "xmark")
                         .padding(10)
                         .background(Circle().fill(Color(.systemGray6)))
@@ -97,7 +102,7 @@ struct GlassesTryOnView: View {
                             isSelected: selectedGlassesIndex == index,
                             onSelect: {
                                 selectedGlassesIndex = index
-                                currentGlassesModel = glasses.modelFile 
+                                currentGlassesModel = glasses.modelFile
                             }
                         )
                     }
@@ -120,6 +125,7 @@ struct GlassesTryOnView: View {
             Spacer()
         }
         .background(Color(.systemBackground))
+        .navigationBarHidden(true)
     }
 }
 

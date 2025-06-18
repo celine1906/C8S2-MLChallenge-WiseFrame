@@ -66,7 +66,7 @@ class GlassesRealityARView: ARView, ARSessionDelegate {
             materials: [OcclusionMaterial()]
         )
         occluder.position = [0, 0, 0]
-        occluder.scale = [0.4, 0.4, 0]
+        occluder.scale = [0.4, 0.1, 0]
         anchor.addChild(occluder)
     }
 }
