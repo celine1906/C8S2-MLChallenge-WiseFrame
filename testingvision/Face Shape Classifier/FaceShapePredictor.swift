@@ -8,7 +8,7 @@ import Vision
 import CoreML
 
 // MARK: - Face Shape Predictor (FIXED)
-class FaceShapePredictor {
+class FaceShapePredictor: ObservableObject {
     static let shared = FaceShapePredictor()
     private var model: MLModel?
     
@@ -52,7 +52,7 @@ class FaceShapePredictor {
         "lower_face_aspect", "nose_mouth_distance"
     ]
     
-    private init() {
+    init() {
         loadModel()
     }
     
@@ -84,6 +84,7 @@ class FaceShapePredictor {
             }
             
             print("📍 Extracted \(landmarks.count) landmarks")
+            
             
             // Convert landmarks to exact Python format
             let landmarksArray = self.convertLandmarksToPythonFormat(landmarks)
@@ -435,7 +436,7 @@ class FaceShapePredictor {
     }
     
     // MARK: - Landmark Extraction
-    private func extractLandmarks(from image: UIImage, completion: @escaping ([CGPoint]?) -> Void) {
+    func extractLandmarks(from image: UIImage, completion: @escaping ([CGPoint]?) -> Void) {
         guard let cgImage = image.cgImage else {
             print("❌ Failed to convert UIImage to CGImage")
             completion(nil)
@@ -558,32 +559,3 @@ enum PredictionError: LocalizedError {
         }
     }
 }
-
-// MARK: - Usage Example
-/*
-// Example usage in your ViewController:
-
-class ViewController: UIViewController {
-    
-    @IBAction func analyzeImage(_ sender: UIButton) {
-        guard let image = selectedImage else { return }
-        
-        FaceShapePredictor.shared.predictFaceShape(from: image) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let (faceShape, confidence, top3)):
-                    print("Face Shape: \(faceShape)")
-                    print("Confidence: \(String(format: "%.1f", confidence))%")
-                    print("Top 3 predictions:")
-                    for (shape, conf) in top3 {
-                        print("  \(shape): \(String(format: "%.1f", conf))%")
-                    }
-                    
-                case .failure(let error):
-                    print("Prediction failed: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-}
-*/
