@@ -8,32 +8,30 @@
 import SwiftUI
 import RealityKit
 import ARKit
-import simd
-
+import Combine
 
 class GlassesRealityARView: ARView, ARSessionDelegate {
     
     var faceAnchorEntity: AnchorEntity?
+    var glassesEntity: ModelEntity?
+    var currentModelName: String = "square_black_light.usdz"
+    
     required init(frame frameRect: CGRect) {
         super.init(frame: frameRect)
-        
-        // Set AR session delegate
         self.session.delegate = self
         
-        // Run face tracking config
         let config = ARFaceTrackingConfiguration()
         config.isLightEstimationEnabled = true
         self.session.run(config, options: [.resetTracking, .removeExistingAnchors])
         
-        // Add face anchor
         let anchor = AnchorEntity(.face)
         self.faceAnchorEntity = anchor
         self.scene.addAnchor(anchor)
         
-        // Load glasses
-        loadGlasses(into: anchor)
+        // Load initial model
+        loadGlassesModel(named: currentModelName)
         
-        // Add occlusion (fake — just black material)
+        // Optional: add occlusion
         addFakeFaceOcclusion(to: anchor)
     }
 
@@ -41,33 +39,49 @@ class GlassesRealityARView: ARView, ARSessionDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func loadGlasses(into anchor: AnchorEntity) {
+    func loadGlassesModel(named modelName: String) {
+        guard modelName != currentModelName || glassesEntity == nil else { return }
+
         do {
-            let glassesEntity = try ModelEntity.loadModel(named: "rectangle.usdz")
-            glassesEntity.setScale(SIMD3<Float>(0.95, 0.95, 0.95), relativeTo: nil)
-            glassesEntity.position = [0, 0, 0.0009] // Adjust to fit face
-            let rotationAngle = Float(1) * .pi / 180
-            glassesEntity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [0, 1, 0])
-            anchor.addChild(glassesEntity)
+            let newGlasses = try ModelEntity.loadModel(named: modelName)
+            newGlasses.name = "glasses"
+            newGlasses.setScale(SIMD3<Float>(0.95, 0.95, 0.95), relativeTo: nil)
+            newGlasses.position = [0, 0, 0.0009]
+            newGlasses.transform.rotation = simd_quatf(angle: Float(1) * .pi / 180, axis: [1, 0, 0])
+
+            // Remove previous
+            glassesEntity?.removeFromParent()
+            glassesEntity = newGlasses
+            faceAnchorEntity?.addChild(newGlasses)
+
+            currentModelName = modelName
         } catch {
-            print("❌ Failed to load glasses model: \(error)")
+            print("❌ Failed to load \(modelName): \(error)")
         }
     }
 
     private func addFakeFaceOcclusion(to anchor: AnchorEntity) {
-        let occluder = ModelEntity(mesh: .generateSphere(radius: 0.1), materials: [OcclusionMaterial()])
-        occluder.position = [0, 0, 0] // Close to face
-        occluder.scale = [0.4, 0.4, 0] // Flattened to approximate face
+        let occluder = ModelEntity(
+            mesh: .generateSphere(radius: 0.1),
+            materials: [OcclusionMaterial()]
+        )
+        occluder.position = [0, 0, 0]
+        occluder.scale = [0.4, 0.1, 0]
         anchor.addChild(occluder)
     }
 }
 
 
-// MARK: - SwiftUI Representable
 struct GlassesARViewRepresentable: UIViewRepresentable {
+    let selectedModel: String
+
     func makeUIView(context: Context) -> GlassesRealityARView {
-        return GlassesRealityARView(frame: .zero)
+        let view = GlassesRealityARView(frame: .zero)
+        view.loadGlassesModel(named: selectedModel)
+        return view
     }
 
-    func updateUIView(_ uiView: GlassesRealityARView, context: Context) {}
+    func updateUIView(_ uiView: GlassesRealityARView, context: Context) {
+        uiView.loadGlassesModel(named: selectedModel)
+    }
 }
