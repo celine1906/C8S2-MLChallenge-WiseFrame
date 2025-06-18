@@ -8,7 +8,7 @@ import UIKit
 struct ContentView: View {
     var body: some View {
         NavigationStack {
-            CameraView()
+            WelcomePages()
         }
     }
 }

@@ -37,13 +37,40 @@ struct CameraView: View {
     private let totalPictures = 6
     
     var body: some View {
-        ZStack {
-            // Camera Preview
-            CameraPreview(cameraManager: cameraManager)
-                .ignoresSafeArea()
-            
+        ZStack() {
+            Color.white
             VStack {
-                // Picture Counter (Top Right)
+                Dismiss()
+
+                Spacer()
+            }
+            
+            ZStack {
+                // Camera Preview
+                CameraPreview(cameraManager: cameraManager)
+                    
+                VStack(spacing: 8) {
+                    if pictureCount == 0 {
+                        Text("Take 6 photos from different angles")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Try: front, slight left, slight right, slight up, slight down, neutral")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                    } else if pictureCount < totalPictures {
+                        Text("Picture \(pictureCount) of \(totalPictures)")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Try a different angle or expression")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding()
+                .background(Color.black.opacity(0.5))
+                .cornerRadius(15)
+                
                 HStack {
                     Spacer()
                     VStack {
@@ -66,9 +93,20 @@ struct CameraView: View {
                                 .cornerRadius(10)
                         }
                     }
-                    .padding(.trailing, 20)
-                    .padding(.top, 50)
+                    .foregroundColor(Color(red: 0.73, green: 0.4, blue: 0.39, opacity: 0.5))
+                    .padding(.trailing, 8)
+                    .padding(.top, 10)
                 }
+                
+            }
+//            .frame(maxWidth:334, maxHeight: 500)
+            
+            
+            
+            
+            VStack {
+                // Picture Counter (Top Right)
+                
                 
                 Spacer()
                 
@@ -79,27 +117,7 @@ struct CameraView: View {
 //  
 //                    } else {
                         // Instructions
-                        VStack(spacing: 8) {
-                            if pictureCount == 0 {
-                                Text("Take 6 photos from different angles")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text("Try: front, slight left, slight right, slight up, slight down, neutral")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
-                            } else if pictureCount < totalPictures {
-                                Text("Picture \(pictureCount) of \(totalPictures)")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text("Try a different angle or expression")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(15)
+              
 //                    }
                     
                     // Capture Button (only show if not showing results)
@@ -130,9 +148,13 @@ struct CameraView: View {
                 }
             }
         }
+        .frame(maxHeight: .infinity, alignment: .center)
+        .padding()
         .onAppear {
             cameraManager.requestPermission()
         }
+//        .navigationTitle("Scan Face")
+        .navigationBarHidden(true)
         .navigationDestination(isPresented: $isShowingResult) {
             if let result = resultData {
                 RecommendationView(
@@ -146,7 +168,6 @@ struct CameraView: View {
             } else {
                 EmptyView()
             }
-
         }
         .alert("Error", isPresented: $showAlert) {
             Button("OK") { }
@@ -265,7 +286,6 @@ struct CameraView: View {
         finalResults = Array(sortedResults.prefix(3))
         showResults = true
     }
-
     
     private func resetSession() {
         predictions = []

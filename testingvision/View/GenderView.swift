@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct GenderView: View {
+    @State private var isShowingResult = false
+    
     var body: some View {
         VStack(alignment: .center, spacing: 180) {
             Spacer()
@@ -22,6 +24,7 @@ struct GenderView: View {
                     Button(action: {
                         print("Female selected")
                         //
+                        isShowingResult.toggle()
                     }) {
                         Text("Female")
                             .font(Font.custom("Inder", size: 20))
@@ -34,7 +37,8 @@ struct GenderView: View {
 
                     Button(action: {
                         print("Male selected")
-                        // 
+                        //
+                        isShowingResult.toggle()
                     }) {
                         Text("Male")
                             .font(Font.custom("Inder", size: 20))
@@ -52,7 +56,10 @@ struct GenderView: View {
                 .font(Font.custom("Inder", size: 14))
                 .foregroundColor(Color(red: 0.65, green: 0.16, blue: 0.16))
         }
-        .navigationBarHidden(true)        
+        .navigationBarHidden(true)
+        .navigationDestination(isPresented: $isShowingResult) {
+            CameraView()
+        }
     }
     
 }

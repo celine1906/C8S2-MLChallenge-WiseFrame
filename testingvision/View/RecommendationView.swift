@@ -92,6 +92,7 @@ struct RecommendationView: View {
             .cornerRadius(15)
         }
         .padding()
+        .navigationBarHidden(true)
         .navigationTitle("Result")
     }
 }
