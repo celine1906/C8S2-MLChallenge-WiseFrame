@@ -40,113 +40,172 @@ struct CameraView: View {
     
     private let totalPictures = 6
     
+    private var instructionText: String {
+        switch pictureCount {
+            case 0:
+                return "Front View"
+            case 1:
+                return "Slight Left"
+            case 2:
+                return "Slight Right"
+            case 3:
+                return "Slight Up"
+            case 4:
+                return "Slight Down"
+            case 5:
+                return "Smile"
+            default:
+                return "Complete"
+            }
+        }
+    
+    private var instructionSubtext: String {
+        switch pictureCount {
+        case 0:
+            return "center the camera directly in front of your face"
+        case 1:
+            return "turn your head slightly to the left"
+        case 2:
+            return "turn your head slightly to the right"
+        case 3:
+            return "tilt your head slightly up"
+        case 4:
+            return "tilt your head slightly down"
+        case 5:
+            return "look straight at the camera and smile!"
+        default:
+            return "analysis complete"
+        }
+    }
+    
     var body: some View {
-        ZStack() {
-            Color.white
-            VStack {
-                Dismiss()
-
-                Spacer()
-            }
-            
             ZStack {
-                // Camera Preview
-                CameraPreview(cameraManager: cameraManager)
-                    
-                VStack(spacing: 8) {
-                    if pictureCount == 0 {
-                        Text("Take 6 photos from different angles")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text("Try: front, slight left, slight right, slight up, slight down, neutral")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .multilineTextAlignment(.center)
-                    } else if pictureCount < totalPictures {
-                        Text("Picture \(pictureCount) of \(totalPictures)")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text("Try a different angle or expression")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                }
-                .padding()
-                .background(Color.black.opacity(0.5))
-                .cornerRadius(15)
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [Color(.systemBackground), Color(.secondarySystemBackground)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
                 
-                HStack {
-                    Spacer()
-                    VStack {
-                        Text("\(pictureCount)/\(totalPictures)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 15)
-                            .padding(.vertical, 8)
-                            .background(Color.black.opacity(0.7))
-                            .cornerRadius(20)
+                VStack(spacing: 20) {
+                    // Header
+                    HStack {
+                        Spacer()
                         
-                        if pictureCount < totalPictures && pictureCount > 0 {
-                            Text("Keep going!")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color.green.opacity(0.7))
-                                .cornerRadius(10)
-                        }
+                        Text("Face Scan")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                        
+                        Spacer()
+                        
+                        Dismiss()
+                        
                     }
-                    .foregroundColor(Color(red: 0.73, green: 0.4, blue: 0.39, opacity: 0.5))
-                    .padding(.trailing, 8)
+                    .padding(.horizontal, 20)
                     .padding(.top, 10)
-                }
-                
-            }
-//            .frame(maxWidth:334, maxHeight: 500)
-            
-            
-            
-            
-            VStack {
-                // Picture Counter (Top Right)
-                
-                
-                Spacer()
-                
-                // Instructions or Results
-                VStack(spacing: 15) {
-//                    if showResults {
-//                        // Final Results Display
-//  
-//                    } else {
-                        // Instructions
-              
-//                    }
+                    
+                    Spacer()
+                    
+                    // Camera Card
+                    VStack(alignment: .leading, spacing: 16) {
+                        
+                        // Camera Preview with corner brackets
+                        ZStack {
+                            CameraPreview(cameraManager: cameraManager)
+                                .clipShape(RoundedRectangle(cornerRadius: 17))
+                                .frame(height: 500)
+                            
+                            // Instruction Box - now placed BELOW the camera preview
+                            VStack(spacing: 8) {
+                                Text(instructionText)
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                
+                                Text(instructionSubtext)
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(Color.pinkMain.opacity(0.5))
+                            .cornerRadius(12)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                            .padding(.top, 30)
+                            .padding(.horizontal, 28)
+                            
+                            VStack {
+                                HStack {
+                                    Image("topLeft")
+                                    Spacer()
+                                    Image("topRight")
+                                }
+                                Spacer()
+                                HStack {
+                                    Image("bottomLeft")
+                                    
+                                    Spacer()
+                                    
+                                    // Picture counter
+                                    Text("\(pictureCount)/\(totalPictures)")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.pinkMain.opacity(0.5))
+                                        .cornerRadius(16)
+                                    
+                                    Spacer()
+                                    
+                                    Image("bottomRight")
+                                }
+                            }
+                            .padding(16)
+                        }
+                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                        
+                        
+
+                    }
+                    .frame(maxWidth: 350)
+                    .padding(.horizontal, 20)
+
+                    
+                    Spacer()
                     
                     // Capture Button
                     if pictureCount < totalPictures {
                         Button(action: capturePhoto) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 80, height: 80)
-                                
-                                Circle()
-                                    .stroke(Color.white, lineWidth: 4)
-                                    .frame(width: 90, height: 90)
-                                
+                            HStack {
                                 if isProcessing {
                                     ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.8)
                                 } else {
-                                    Image(systemName: "camera")
-                                        .font(.title)
-                                        .foregroundColor(.black)
+                                    Image(systemName: "camera.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.white)
                                 }
+                                
+                                Text(isProcessing ? "Processing..." : "CAPTURE")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 54)
+                            .background(
+                                Color(red: 0.73, green: 0.4, blue: 0.39)
+                            )
+                            .cornerRadius(16)
+                            .shadow(color: Color(red: 0.73, green: 0.4, blue: 0.39).opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(isProcessing)
+                        .padding(.horizontal, 20)
                         .padding(.bottom, 30)
                     }
                 }
@@ -175,15 +234,27 @@ struct CameraView: View {
             } else {
                 EmptyView()
             }
-        }
-        .alert("Error", isPresented: $showAlert) {
-            Button("OK") {
-                isProcessing = false // Reset processing state on error
+            .navigationBarHidden(true)
+            .navigationDestination(isPresented: $isShowingResult) {
+                if let result = resultData {
+                    RecommendationView(
+                        image: result.faceImage,
+                        result: result.result3Labels,
+                        result2: result.result4Labels,
+                        finalResults: finalResults
+                    )
+                } else {
+                    EmptyView()
+                }
             }
-        } message: {
-            Text(alertMessage)
+            .alert("Error", isPresented: $showAlert) {
+                Button("OK") {
+                    isProcessing = false
+                }
+            } message: {
+                Text(alertMessage)
+            }
         }
-    }
     
     private func cropImage(_ image: UIImage) -> UIImage? {
         guard let cgImage = image.cgImage else { return nil }
