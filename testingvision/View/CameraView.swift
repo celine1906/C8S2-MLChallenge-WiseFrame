@@ -210,36 +210,15 @@ struct CameraView: View {
                     }
                 }
             }
-        }
-        .frame(maxHeight: .infinity, alignment: .center)
-        .padding()
-        .onAppear {
-            cameraManager.requestPermission()
-        }
-//        .navigationTitle("Scan Face")
-        .navigationBarHidden(true)
-        .navigationDestination(isPresented: $isShowingResult) {
-            if let result = resultData {
-                if pictureCount > 0 {
-                    RecommendationView(
-                        image: result.faceImage,
-    //                    brightness: result.brightness,
-    //                    isTooYellow: result.isTooYellow,
-                        result: result.result3Labels,
-                        result2: result.result4Labels,
-                        finalResults: finalResults,
-//                        landmarks: allLandmarks[pictureCount - 1]
-                    )
-                }
-            } else {
-                EmptyView()
+            .onAppear {
+                cameraManager.requestPermission()
             }
             .navigationBarHidden(true)
             .navigationDestination(isPresented: $isShowingResult) {
                 if let result = resultData {
                     RecommendationView(
                         image: result.faceImage,
-                        result: result.result3Labels,
+//                        result: result.result3Labels,
                         result2: result.result4Labels,
                         finalResults: finalResults
                     )
@@ -255,6 +234,7 @@ struct CameraView: View {
                 Text(alertMessage)
             }
         }
+    
     
     private func cropImage(_ image: UIImage) -> UIImage? {
         guard let cgImage = image.cgImage else { return nil }

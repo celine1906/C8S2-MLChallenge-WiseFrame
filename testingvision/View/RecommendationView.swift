@@ -174,8 +174,8 @@ struct RecommendationView: View {
             .padding(.top)
 
             // MARK: - Image
-            if let image = image {
-                Image(uiImage: image)
+            if let displayImage = processedImage ?? image {
+                Image(uiImage: displayImage)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 300)
@@ -234,7 +234,12 @@ struct RecommendationView: View {
         }
         .background(Color.white)
         .edgesIgnoringSafeArea(.bottom)
-        .navigationBarHidden(true) // Hides the default navigation bar    
+        .navigationBarHidden(true) // Hides the default navigation bar
+        .onAppear{
+            if let image = image {
+                processImageWithLandmarks(image: image)
+            }
+        }
     }
     
     private func processImageWithLandmarks(image: UIImage) {
