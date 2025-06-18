@@ -34,6 +34,9 @@ struct CameraView: View {
     @State private var resultData: ResultData?
     @State private var isShowingResult = false
     
+    // FIXED: Store all predictions from 6 photos
+    @State private var allFaceShapePredictions: [[(String, Double)]] = []
+    
     private let totalPictures = 6
     
     var body: some View {
@@ -120,12 +123,12 @@ struct CameraView: View {
               
 //                    }
                     
-                    // Capture Button (only show if not showing results)
-                    if !showResults {
+                    // Capture Button
+                    if pictureCount < totalPictures {
                         Button(action: capturePhoto) {
                             ZStack {
                                 Circle()
-                                    .fill(pictureCount >= totalPictures ? Color.green : Color.white)
+                                    .fill(Color.white)
                                     .frame(width: 80, height: 80)
                                 
                                 Circle()
@@ -134,11 +137,11 @@ struct CameraView: View {
                                 
                                 if isProcessing {
                                     ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: pictureCount >= totalPictures ? .white : .black))
-                                } else if pictureCount >= totalPictures {
-                                    Image(systemName: "checkmark")
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                } else {
+                                    Image(systemName: "camera")
                                         .font(.title)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.black)
                                 }
                             }
                         }
@@ -170,7 +173,9 @@ struct CameraView: View {
             }
         }
         .alert("Error", isPresented: $showAlert) {
-            Button("OK") { }
+            Button("OK") {
+                isProcessing = false // Reset processing state on error
+            }
         } message: {
             Text(alertMessage)
         }
@@ -213,6 +218,7 @@ struct CameraView: View {
         guard pictureCount < totalPictures else { return }
 
         isProcessing = true
+        
         cameraManager.capturePhoto { image in
             guard let image = image else {
                 DispatchQueue.main.async {
@@ -223,10 +229,27 @@ struct CameraView: View {
                 return
             }
             
+            // FIXED: Handle skin tone classification for first photo only
             if pictureCount == 0 {
-                guard let croppedImage = self.cropImage(image) else { return }
-                guard let prediction = mlModel.classifySkinTone(image: croppedImage) else { return }
-                guard let prediction2 = mlModel.classifySkinTone2(image: croppedImage) else { return }
+                guard let croppedImage = self.cropImage(image) else {
+                    DispatchQueue.main.async {
+                        self.isProcessing = false
+                        self.alertMessage = "Failed to detect face for skin tone analysis"
+                        self.showAlert = true
+                    }
+                    return
+                }
+                
+                guard let prediction = mlModel.classifySkinTone(image: croppedImage),
+                      let prediction2 = mlModel.classifySkinTone2(image: croppedImage) else {
+                    DispatchQueue.main.async {
+                        self.isProcessing = false
+                        self.alertMessage = "Failed to analyze skin tone"
+                        self.showAlert = true
+                    }
+                    return
+                }
+                
                 self.resultData = ResultData(
                     faceImage: croppedImage,
                     result3Labels: prediction,
@@ -234,27 +257,41 @@ struct CameraView: View {
                 )
             }
             
+            // FIXED: Properly handle face shape prediction with completion
+            print("🔄 Starting face shape prediction for photo \(pictureCount + 1)")
+            
             FaceShapePredictor.shared.predictFaceShape(from: image) { result in
                 DispatchQueue.main.async {
-                    self.isProcessing = false
-                    
                     switch result {
-                    case .success(let (predictedShape, confidence)):
-                        self.predictions.append((predictedShape, confidence))
+                    case .success(let (primaryPrediction, primaryConfidence, top3)):
+                        print("🎯 Photo \(self.pictureCount + 1) - Primary: \(primaryPrediction) (\(String(format: "%.1f", primaryConfidence))%)")
+                        print("🏆 Top 3:")
+                        for (index, (className, confidence)) in top3.enumerated() {
+                            let rank = index == 0 ? "🥇" : (index == 1 ? "🥈" : "🥉")
+                            print("   \(rank) \(className): \(String(format: "%.1f", confidence))%")
+                        }
+                        
+                        // Store this photo's prediction
+                        self.allFaceShapePredictions.append(top3)
+                        
+                        // Update picture count
                         self.pictureCount += 1
                         
+                        // If we've captured all photos, calculate final results
                         if self.pictureCount >= self.totalPictures {
                             Task {
                                 await self.calculateFinalResults()
-                                DispatchQueue.main.async {
-                                    self.isShowingResult = true
-                                }
                             }
                         }
                         
+                        // Reset processing state
+                        self.isProcessing = false
+                        
                     case .failure(let error):
-                        self.alertMessage = error.localizedDescription
+                        print("❌ Face shape prediction error: \(error)")
+                        self.alertMessage = "Failed to analyze face shape: \(error.localizedDescription)"
                         self.showAlert = true
+                        self.isProcessing = false
                     }
                 }
             }
@@ -263,20 +300,33 @@ struct CameraView: View {
 
     
     private func calculateFinalResults() async {
+        print("📊 Calculating final results from \(allFaceShapePredictions.count) photos...")
+        
+        // Aggregate all predictions across all photos
         var shapeStats: [String: (totalConfidence: Double, count: Int)] = [:]
         
-        for (shape, confidence) in predictions {
-            if let existing = shapeStats[shape] {
-                shapeStats[shape] = (existing.totalConfidence + confidence, existing.count + 1)
-            } else {
-                shapeStats[shape] = (confidence, 1)
+        // Process each photo's top 3 predictions
+        for photoIndex in 0..<allFaceShapePredictions.count {
+            let photoPredictions = allFaceShapePredictions[photoIndex]
+            print("📸 Photo \(photoIndex + 1) predictions:")
+            
+            for (shape, confidence) in photoPredictions {
+                print("   \(shape): \(String(format: "%.1f", confidence))%")
+                
+                if let existing = shapeStats[shape] {
+                    shapeStats[shape] = (existing.totalConfidence + confidence, existing.count + 1)
+                } else {
+                    shapeStats[shape] = (confidence, 1)
+                }
             }
         }
         
+        // Calculate average confidence for each shape
         let sortedResults = shapeStats.map { (shape, stats) in
             let avgConfidence = stats.totalConfidence / Double(stats.count)
             return (shape, avgConfidence, stats.count)
         }.sorted { first, second in
+            // Sort by count first (more frequent predictions), then by confidence
             if first.2 != second.2 {
                 return first.2 > second.2
             }
@@ -284,6 +334,13 @@ struct CameraView: View {
         }
 
         finalResults = Array(sortedResults.prefix(3))
+        
+        print("🎯 FINAL AGGREGATED RESULTS:")
+        for (index, (shape, avgConfidence, count)) in finalResults.enumerated() {
+            let rank = index == 0 ? "🥇" : (index == 1 ? "🥈" : "🥉")
+            print("   \(rank) \(shape): \(String(format: "%.1f", avgConfidence))% avg (appeared \(count) times)")
+        }
+        
         showResults = true
     }
     
@@ -292,6 +349,9 @@ struct CameraView: View {
         pictureCount = 0
         showResults = false
         finalResults = []
+        allFaceShapePredictions = []
+        resultData = nil
+        isProcessing = false
     }
 }
 
