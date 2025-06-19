@@ -306,7 +306,7 @@ struct CameraView: View {
                 }
                 
                 self.resultData = ResultData(
-                    faceImage: image,
+                    faceImage: croppedImage,
                     result3Labels: prediction,
                     result4Labels: prediction2
                 )
