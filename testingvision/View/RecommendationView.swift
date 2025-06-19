@@ -35,27 +35,31 @@ struct RecommendationView: View {
     var body: some View {
       VStack(spacing: 24) {
             // MARK: - Header
-            HStack {
-                Text("Your Result")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                Spacer()
-                Button(action: {
-                    // Action to dismiss the view would go here
-                    dismissAction()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.accentRed)
-                            .frame(width: 32, height: 32)
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
+            ZStack {
+              Text("Your Result")
+                  .font(.largeTitle)
+                  .fontWeight(.bold)
+                  .frame(maxWidth: .infinity, alignment: .center)
+
+              HStack {
+                  Spacer()
+                  Button(action: {
+                      dismissAction()
+                  }) {
+                      ZStack {
+                          Circle()
+                              .fill(Color.accentRed)
+                              .frame(width: 32, height: 32)
+                          Image(systemName: "xmark")
+                              .font(.system(size: 15, weight: .bold))
+                              .foregroundColor(.white)
+                      }
+                  }
+              }
             }
             .padding(.horizontal)
             .padding(.top)
+
 
             // MARK: - Image
             if let displayImage = processedImage ?? image {
