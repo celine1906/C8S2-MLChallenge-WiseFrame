@@ -90,20 +90,20 @@ struct CameraView: View {
                 
                 VStack(spacing: 20) {
                     // Header
-                    HStack {
-                        Spacer()
-                        
+                    ZStack {
                         Text("Face Scan")
                             .font(.title2)
                             .fontWeight(.semibold)
                         
-                        Spacer()
-                        
-                        Dismiss()
-                        
+                        HStack {
+                            Spacer()
+                            Dismiss()
+                        }
                     }
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
+
                     
                     Spacer()
                     
