@@ -24,7 +24,6 @@ struct WelcomePages: View {
                         .font(Font.custom("SFProDisplay-Bold", size: 32))
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Color.redMain)
-                        .frame(width: .infinity, height: .infinity, alignment: .top)
                         .padding(.bottom, 24)
                     
                     

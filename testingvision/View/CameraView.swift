@@ -15,7 +15,7 @@ struct ResultData: Hashable {
     let faceImage: UIImage?
 //    let brightness: Float
 //    let isTooYellow: Bool
-    let result3Labels: String?
+    let result3Labels: [String: Double]?
     let result4Labels: [String: Double]?
 }
 
@@ -296,7 +296,7 @@ struct CameraView: View {
                 }
                 
                 guard let prediction = mlModel.classifySkinTone(image: croppedImage),
-                      let prediction2 = mlModel.classifySkinTone2(image: croppedImage) else {
+                      let prediction2 = mlModel.classifySkinTone(image: croppedImage) else {
                     DispatchQueue.main.async {
                         self.isProcessing = false
                         self.alertMessage = "Failed to analyze skin tone"

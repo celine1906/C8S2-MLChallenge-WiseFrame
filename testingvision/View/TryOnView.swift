@@ -172,6 +172,7 @@ struct GlassesTryOnView: View {
 //                currentGlassesModel = glassesOptions[firstIndex].modelFile
 //            }
             if currentGlassesModel.isEmpty, let first = recommendedFrames.first {
+//                currentGlassesModel = "rectangle.usdz"
                 currentGlassesModel = "\(first.modelFile)_\(recommendedColors.first ?? "black").usdz"
             }
         }
@@ -223,7 +224,7 @@ struct GlassesCard: View {
                 VStack(spacing: 12) {
                     ForEach(Array(recommendedColors.enumerated()), id: \.offset) { index, color in
                         Circle()
-                            .fill(mapColorToFrameColor(color))
+                            .fill(mapColorToFrameColor(recommendedColors[index]))
                             .frame(width: 24, height: 24)
                             .overlay(
                                 Circle()

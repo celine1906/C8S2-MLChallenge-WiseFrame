@@ -20,11 +20,11 @@ class RecommendationViewModel: ObservableObject {
           switch faceShape {
           case "oval":
               // Oval faces can wear most styles
-              recommended = [0, 1, 2, 3, 4, 6] // Rectangle, Round, Aviator, Cat Eye, Square, Geometric
+              recommended = [0, 1, 2, 3, 4] // Rectangle, Round, Aviator, Cat Eye, Square, Geometric
               
           case "round":
               // Angular frames to add structure
-              recommended = [0, 2, 4, 6] // Rectangle, Aviator, Square, Geometric
+              recommended = [0, 2, 4] // Rectangle, Aviator, Square, Geometric
               
           case "square":
               // Soft, curved frames to balance sharp angles
@@ -63,17 +63,17 @@ class RecommendationViewModel: ObservableObject {
               // Light skin tone - cool undertones
               return ["blue", "black", "gold"]
               
-          case "mid-light":
+          case "medium":
               // Medium light with warm undertones
               return ["brown", "darkRed", "blue"]
               
-          case "mid-dark":
+          case "deep":
               // Medium light with cool undertones
               return ["grey", "black", "darkBrown"]
               
-          case "dark":
-              // Deep tone
-              return ["black", "gold", "blue"]
+//          case "dark":
+//              // Deep tone
+//              return ["black", "gold", "blue"]
               
           default:
               return ["black", "brown", "darkRed"]

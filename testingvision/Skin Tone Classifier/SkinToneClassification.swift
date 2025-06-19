@@ -54,13 +54,13 @@ class SkinToneClassification: ObservableObject {
         return buffer
     }
 
-    func classifySkinTone(image: UIImage) -> String? {
+    func classifySkinTone(image: UIImage) -> [String: Double]? {
         do {
             let config = MLModelConfiguration()
             let model = try SkinToneClassifier3Labels(configuration: config)
             if let pixelBuffer = uiImageToPixelBuffer(image) {
                 let prediction = try model.prediction(image: pixelBuffer)
-                return prediction.target
+                return prediction.targetProbability
             }
         }
         catch {
