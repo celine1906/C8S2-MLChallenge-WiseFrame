@@ -10,30 +10,62 @@ import SceneKit
 
 struct GlassesTryOnView: View {
     @State private var selectedGlassesIndex = 0
-    @State private var currentGlassesModel = "round.usdz"
+    @State var currentGlassesModel = ""
     @State private var showingARView = true
     @Environment(\.dismiss) private var dismiss
+    
+    @State var recommendedFrameIndexes: [Int]
+    @State var recommendedColors: [String]
+    
+    var recommendedFrames: [GlassesModel] {
+        recommendedFrameIndexes.map { glassesOptions[$0] }
+    }
 
     let glassesOptions = [
         GlassesModel(
             name: "Rectangle",
             description: "Adds structure to softer features. A great fit for round or oval faces.",
-            modelFile: "rectangle.usdz",
+            modelFile: "rectangle",
             frameColors: [.black, .brown, .clear]
         ),
         GlassesModel(
             name: "Round",
             description: "Vintage-style round frames, flattering for most face shapes.",
-            modelFile: "round.usdz",
+            modelFile: "round",
             frameColors: [.black, .brown, .clear]
         ),
         GlassesModel(
             name: "Aviator",
             description: "Bold and structured. Works well with rounder face types.",
-            modelFile: "aviators.usdz",
+            modelFile: "aviators",
+            frameColors: [.black, .brown, .clear]
+        ),
+        GlassesModel(
+            name: "Cat Eye",
+            description: "Elegant and feminine. Ideal for heart-shaped and oval faces.",
+            modelFile: "cateye",
+            frameColors: [.black, .brown, .clear]
+        ),
+        GlassesModel(
+            name: "Square",
+            description: "Strong angles that complement rounder or oval faces.",
+            modelFile: "square",
+            frameColors: [.black, .brown, .clear]
+        ),
+        GlassesModel(
+            name: "Oval",
+            description: "Balanced curves, great for square or rectangular face shapes.",
+            modelFile: "oval",
+            frameColors: [.black, .brown, .clear]
+        ),
+        GlassesModel(
+            name: "Geometric",
+            description: "Unique angular styles for bold and modern looks. Best for oval faces.",
+            modelFile: "geometric",
             frameColors: [.black, .brown, .clear]
         )
-    ]    
+    ]
+
     
     var body: some View {
         VStack(spacing: 0) {
@@ -96,16 +128,21 @@ struct GlassesTryOnView: View {
             // Glasses Carousel
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
-                    ForEach(Array(glassesOptions.enumerated()), id: \.offset) { index, glasses in
-                        GlassesCard(
-                            glasses: glasses,
-                            isSelected: selectedGlassesIndex == index,
-                            onSelect: {
-                                selectedGlassesIndex = index
-                                currentGlassesModel = glasses.modelFile
-                            }
-                        )
-                    }
+                    ForEach(Array(recommendedFrameIndexes.enumerated()), id: \.offset) { displayIndex, originalIndex in
+                           let glasses = glassesOptions[originalIndex]
+                           GlassesCard(
+                               glasses: glasses,
+                               isSelected: selectedGlassesIndex == displayIndex,
+                               isRecommended: true, // All displayed glasses are recommended
+                               recommendedColors: recommendedColors,
+                               currentGlassesModel: $currentGlassesModel,
+                               selectedColorIndex: 0,
+                               onSelect: {
+                                   selectedGlassesIndex = displayIndex
+                                   currentGlassesModel = "\(glasses.modelFile)_\(recommendedColors[0]).usdz"
+                               }
+                           )
+                        }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
@@ -114,10 +151,14 @@ struct GlassesTryOnView: View {
 
             // Page Indicator
             HStack(spacing: 8) {
-                ForEach(0..<glassesOptions.count, id: \.self) { index in
+                ForEach(0..<recommendedFrameIndexes.count, id: \.self) { index in
                     Circle()
                         .fill(index == selectedGlassesIndex ? Color.pink : Color.gray.opacity(0.3))
                         .frame(width: 8, height: 8)
+                }
+                .onTapGesture {
+                    
+                    
                 }
             }
             
@@ -126,14 +167,25 @@ struct GlassesTryOnView: View {
         }
         .background(Color(.systemBackground))
         .navigationBarHidden(true)
+        .onAppear {
+//            if currentGlassesModel.isEmpty, let firstIndex = recommendedFrameIndexes.first {
+//                currentGlassesModel = glassesOptions[firstIndex].modelFile
+//            }
+            if currentGlassesModel.isEmpty, let first = recommendedFrames.first {
+                currentGlassesModel = "\(first.modelFile)_\(recommendedColors.first ?? "black").usdz"
+            }
+        }
     }
 }
 
 struct GlassesCard: View {
     let glasses: GlassesModel
     let isSelected: Bool
-    @State private var selectedColorIndex = 0
-    let onSelect: () -> Void // 👈 Add this
+    let isRecommended: Bool
+    let recommendedColors: [String]
+    @Binding var currentGlassesModel: String
+    @State var selectedColorIndex: Int
+    let onSelect: () -> Void
     
     var body: some View {
         ZStack {
@@ -169,9 +221,9 @@ struct GlassesCard: View {
                 .padding()
 
                 VStack(spacing: 12) {
-                    ForEach(Array(glasses.frameColors.enumerated()), id: \.offset) { index, color in
+                    ForEach(Array(recommendedColors.enumerated()), id: \.offset) { index, color in
                         Circle()
-                            .fill(colorForGlasses(color))
+                            .fill(mapColorToFrameColor(color))
                             .frame(width: 24, height: 24)
                             .overlay(
                                 Circle()
@@ -179,6 +231,9 @@ struct GlassesCard: View {
                             )
                             .onTapGesture {
                                 selectedColorIndex = index
+                                let color = recommendedColors[selectedColorIndex]
+                                currentGlassesModel = "\(glasses.modelFile)_\(color).usdz"
+                                print("warna", mapColorToFrameColor(recommendedColors[index]))
                             }
                     }
                 }
@@ -192,14 +247,30 @@ struct GlassesCard: View {
         }
     }
     
-    private func colorForGlasses(_ color: GlassesColor) -> Color {
-        switch color {
-        case .black: return .black
-        case .brown: return .brown
-        case .clear: return .gray.opacity(0.3)
+    private func mapColorToFrameColor(_ colorName: String) -> Color {
+            let lowercased = colorName.lowercased()
+            
+            switch lowercased {
+            case "black":
+                return .blackAsset
+            case "brown":
+                return .brownAsset
+            case "darkBrown":
+                return .darkBrownAsset
+            case "blue":
+                return .blueAsset
+            case "gold":
+                return .goldAsset
+            case "darkRed":
+                return .darkRedAsset
+            case "grey":
+                return .greyAsset
+            default:
+                return .black
+            }
         }
-    }
 }
+
 
 
 
@@ -213,11 +284,4 @@ struct GlassesModel {
 
 enum GlassesColor {
     case black, brown, clear
-}
-
-struct GlassesTryOnView_Previews: PreviewProvider {
-    static var previews: some View {
-        GlassesTryOnView()
-            .previewDevice("iPhone 14 Pro")
-    }
 }
