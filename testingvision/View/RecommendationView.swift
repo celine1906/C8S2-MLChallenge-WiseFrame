@@ -22,133 +22,17 @@ struct RecommendationView: View {
     var image: UIImage?
     // The unused 'result' parameter has been removed for clarity.
     // 'finalResults' is used for face shape, 'result2' is for skin tone.
+    @State private var topFaceShape: String = ""
+    @State private var topSkinTone: String = ""
+    @State var recommendedFrameIndexes: [Int] = []
+    @State var recommendedColors: [String] = []
+    var viewModel=RecommendationViewModel()
     var result2: [String: Double]?
     let finalResults: [(String, Double, Int)]
     
     @State private var processedImage: UIImage?
     
     var body: some View {
-//         VStack {
-//             Text("Your Result")
-//                 .font(.title)
-//                 .fontWeight(.medium)
-//                 .padding(.top)
-            
-//             if let displayImage = processedImage ?? image {
-//                 Image(uiImage: displayImage)
-//                     .resizable()
-//                     .scaledToFit()
-//                     .frame(height: 200)
-//                     .clipShape(RoundedRectangle(cornerRadius: 15))
-//                     .background(Color.white)
-//             }
-            
-//             Text("Based on your pictures")
-//                 .font(.headline)
-//                 .foregroundColor(.black)
-//                 .padding(.top, 10)
-            
-//             VStack {
-//                 Text("Face Shape Results")
-//                     .font(.title2)
-//                     .fontWeight(.bold)
-//                     .foregroundColor(.black)
-//                     .padding(.bottom, 5)
-                
-//                 ForEach(Array(finalResults.enumerated()), id: \.offset) { index, result in
-//                     HStack {
-//                         Text("\(index + 1).")
-//                             .font(.headline)
-//                             .foregroundColor(.black)
-                        
-//                         Text(result.0.capitalized)
-//                             .font(.headline)
-//                             .fontWeight(.semibold)
-//                             .foregroundColor(.black)
-                        
-//                         ProgressView(value: result.1 / 100.0)
-//                             .progressViewStyle(LinearProgressViewStyle(tint: Color.gray))
-//                             .frame(height: 10)
-                        
-//                         Text("\(Int(result.1))%")
-//                             .font(.subheadline)
-//                             .foregroundColor(.black)
-//                     }
-//                     .padding(.horizontal, 16)
-//                     .padding(.vertical, 8)
-//                 }
-//             }
-//             .padding()
-//             .background(
-//                 RoundedRectangle(cornerRadius: 15)
-//                     .fill(Color.white)
-//             )
-//             .overlay(
-//                 RoundedRectangle(cornerRadius: 15)
-//                     .stroke(Color.gray.opacity(0.3), lineWidth: 2)
-//             )
-            
-//             VStack {
-//                 Text("Skin Tone Results")
-//                     .font(.title2)
-//                     .fontWeight(.bold)
-//                     .foregroundColor(.black)
-//                     .padding(.bottom, 5)
-                
-//                 if let skinToneResults = result2 {
-//                     let topTwoResults = skinToneResults.sorted(by: { $0.value > $1.value }).prefix(2)
-                    
-//                     ForEach(Array(topTwoResults.enumerated()), id: \.offset) { index, result in
-//                         HStack {
-//                             Text("\(index + 1).")
-//                                 .font(.headline)
-//                                 .foregroundColor(.black)
-                            
-//                             Text(result.0.capitalized)
-//                                 .font(.headline)
-//                                 .fontWeight(.semibold)
-//                                 .foregroundColor(.black)
-                            
-//                             ProgressView(value: result.1)
-//                                 .progressViewStyle(LinearProgressViewStyle(tint: Color.gray))
-//                                 .frame(height: 10)
-                            
-//                             Text("\(Int(result.1 * 100))%")
-//                                 .font(.subheadline)
-//                                 .foregroundColor(.black)
-//                         }
-//                         .padding(.horizontal, 16)
-//                         .padding(.vertical, 8)
-//                     }
-//                 }
-//             }
-//             .padding()
-//             .background(
-//                 RoundedRectangle(cornerRadius: 15)
-//                     .fill(Color.white)
-//             )
-//             .overlay(
-//                 RoundedRectangle(cornerRadius: 15)
-//                     .stroke(Color.gray.opacity(0.3), lineWidth: 2)
-//             )
-            
-//             // "Try-on Glasses" Button
-//             NavigationLink(destination: GlassesTryOnView()) {
-//                 Text("Try-on Glasses")
-//                     .padding()
-//                     .foregroundColor(.white)
-//                     .background(Color.black)
-//                     .cornerRadius(10)
-//             }
-//         }
-//         .padding()
-//         .navigationBarHidden(true)
-//         .navigationTitle("Result")
-//         .onAppear {
-//             if let image = image {
-//                 processImageWithLandmarks(image: image)
-//             }
-//         }
       VStack(spacing: 24) {
             // MARK: - Header
             HStack {
@@ -196,21 +80,14 @@ struct RecommendationView: View {
             // MARK: - Result Boxes
             HStack(spacing: 16) {
                 // Face Shape Box
-                if let topFaceShape = finalResults.max(by: { $0.1 < $1.1 }) {
-                    ResultBox(
-                        title: "Your face shape is most likely",
-                        result: topFaceShape.0.capitalized
-                    )
-                }
-
-                // Skin Tone Box
-                if let skinToneResults = result2,
-                   let topSkinTone = skinToneResults.max(by: { $0.value < $1.value }) {
-                    ResultBox(
-                        title: "Your skin tone is most likely",
-                        result: topSkinTone.key.capitalized
-                    )
-                }
+                ResultBox(
+                    title: "Your face shape is most likely",
+                    result: topFaceShape.capitalized
+                )
+                ResultBox(
+                    title: "Your skin tone is most likely",
+                    result: topSkinTone.capitalized
+                )
             }
             .padding(.horizontal)
                         
@@ -218,7 +95,7 @@ struct RecommendationView: View {
             // MARK: - Recommendation Button
             // The destination view 'GlassesTryOnView' is assumed to exist.
             // If it doesn't, this can be changed to a standard Button.
-            NavigationLink(destination:  GlassesTryOnView()) {
+          NavigationLink(destination:  GlassesTryOnView(recommendedFrameIndexes: recommendedFrameIndexes, recommendedColors: recommendedColors)) {
                 Text("See recommended frames")
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
@@ -239,6 +116,18 @@ struct RecommendationView: View {
             if let image = image {
                 processImageWithLandmarks(image: image)
             }
+            if let topShape = finalResults.max(by: { $0.1 < $1.1 })?.0 {
+                let shape = topShape.lowercased()
+                topFaceShape = shape
+                recommendedFrameIndexes = viewModel.getRecommendedGlasses(for: shape)
+            }
+
+            if let skinToneKey = result2?.max(by: { $0.value < $1.value })?.key {
+                let tone = skinToneKey.lowercased()
+                topSkinTone = tone
+                recommendedColors = viewModel.getRecommendedColors(for: tone)
+            }
+
         }
     }
     
@@ -379,36 +268,5 @@ struct ResultBox: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.accentRed.opacity(0.8), lineWidth: 1)
         )
-    }
-}
-
-
-// Preview
-struct RecommendationView_Previews: PreviewProvider {
-    static var previews: some View {
-        // Sample image for preview
-        let sampleImage = UIImage(named: "preview_person_face") ?? UIImage(systemName: "person.fill")!
-        
-        // Sample face shape results
-        let faceShapeResults: [(String, Double, Int)] = [
-            ("Oval", 85.0, 1),
-            ("Round", 10.0, 0),
-            ("Square", 5.0, 0)
-        ]
-        
-        // Sample skin tone results (updated to match UI)
-        let skinToneResults: [String: Double] = [
-            "Light": 0.9,
-            "Cool": 0.1
-        ]
-        
-        // Embed in NavigationView for the NavigationLink to function in preview
-        NavigationView {
-            RecommendationView(
-                image: sampleImage,
-                result2: skinToneResults,
-                finalResults: faceShapeResults
-            )
-        }
     }
 }
