@@ -18,7 +18,7 @@ struct Dismiss: View {
             }) {
                 Image(systemName: "xmark.circle.fill")
                     .resizable()
-                    .frame(width: 30, height: 30)
+                    .frame(width: 44, height: 44)
                     .foregroundColor(Color(red: 0.73, green: 0.4, blue: 0.39)) // warna pink
                     .padding()
             }
