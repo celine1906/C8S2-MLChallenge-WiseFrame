@@ -45,7 +45,7 @@ class GlassesRealityARView: ARView, ARSessionDelegate {
         do {
             let newGlasses = try ModelEntity.loadModel(named: modelName)
             newGlasses.name = "glasses"
-            newGlasses.setScale(SIMD3<Float>(0.95, 0.95, 0.95), relativeTo: nil)
+//            newGlasses.setScale(SIMD3<Float>(0.95, 0.95, 0.95), relativeTo: nil)
             newGlasses.position = [0, 0, 0.0009]
             newGlasses.transform.rotation = simd_quatf(angle: Float(1) * .pi / 180, axis: [1, 0, 0])
 

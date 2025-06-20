@@ -9,6 +9,7 @@ import ARKit
 import SceneKit
 
 struct GlassesTryOnView: View {
+    @Binding var path: NavigationPath
     @State private var selectedGlassesIndex = 0
     @State var currentGlassesModel = ""
     @State private var showingARView = true
@@ -76,7 +77,8 @@ struct GlassesTryOnView: View {
                 }) {
                     Image(systemName: "chevron.left")
                         .padding(10)
-                        .background(Circle().fill(Color(.systemGray6)))
+                        .background(Circle().fill(Color.accentRed))
+                        .foregroundColor(.white)
                 }
 
                 Spacer()
@@ -88,11 +90,12 @@ struct GlassesTryOnView: View {
                 Spacer()
 
                 Button(action: {
-                    
+                    path.removeLast(path.count)
                 }) {
                     Image(systemName: "xmark")
                         .padding(10)
-                        .background(Circle().fill(Color(.systemGray6)))
+                        .background(Circle().fill(Color.accentRed))
+                        .foregroundColor(.white)
                 }
             }
             .padding(.horizontal, 20)
