@@ -22,6 +22,8 @@ struct ResultData: Hashable {
 
 // MARK: - Main App View
 struct CameraView: View {
+    @Binding var path: NavigationPath
+    
     @StateObject private var cameraManager = CameraManager()
     @State private var predictions: [(String, Double)] = []
     @State private var isProcessing = false
@@ -217,10 +219,16 @@ struct CameraView: View {
             .navigationDestination(isPresented: $isShowingResult) {
                 if let result = resultData {
                     RecommendationView(
+                        path : $path,
+                        dismissAction: {
+                            isShowingResult = false
+                            resetSession()
+                        },
                         image: result.faceImage,
 //                        result: result.result3Labels,
                         result2: result.result4Labels,
                         finalResults: finalResults
+                        
                     )
                 } else {
                     EmptyView()

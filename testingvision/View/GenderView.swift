@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GenderView: View {
     @State private var isShowingResult = false
+    @Binding var path: NavigationPath
 
     var body: some View {
         VStack(spacing: 0) {
@@ -75,11 +76,11 @@ struct GenderView: View {
         }
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $isShowingResult) {
-            CameraView()
+            CameraView(path: $path)
         }
     }
 }
 
 #Preview {
-    GenderView()
+    GenderView(path: .constant(NavigationPath()))
 }

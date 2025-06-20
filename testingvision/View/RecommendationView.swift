@@ -15,6 +15,7 @@ extension Color {
 
 struct RecommendationView: View {
     @StateObject var faceShapePredictor = FaceShapePredictor()
+    @Binding var path: NavigationPath
 //     var result: String?
     // This action can be provided by the parent view to handle dismissal
     var dismissAction: () -> Void = {}
@@ -28,7 +29,7 @@ struct RecommendationView: View {
     @State var recommendedColors: [String] = []
     var viewModel=RecommendationViewModel()
     var result2: [String: Double]?
-    let finalResults: [(String, Double, Int)]
+    let finalResults: [(String, Double, Int)]    
     
     @State private var processedImage: UIImage?
     
@@ -99,7 +100,7 @@ struct RecommendationView: View {
             // MARK: - Recommendation Button
             // The destination view 'GlassesTryOnView' is assumed to exist.
             // If it doesn't, this can be changed to a standard Button.
-          NavigationLink(destination:  GlassesTryOnView(recommendedFrameIndexes: recommendedFrameIndexes, recommendedColors: recommendedColors)) {
+          NavigationLink(destination:  GlassesTryOnView(path: $path, recommendedFrameIndexes: recommendedFrameIndexes, recommendedColors: recommendedColors)) {
                 Text("See recommended frames")
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
